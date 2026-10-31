@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Lanet Shell
+Comment=Custom lightweight Lanet desktop shell
+Exec=lanet-shell
+Terminal=false
+Categories=Utility;
+Icon=applications-system

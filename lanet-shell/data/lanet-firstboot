@@ -1,0 +1,20 @@
+#!/sbin/openrc-run
+
+description="Install Lanet desktop runtime packages from the live medium"
+
+depend() {
+    need localmount
+}
+
+start() {
+    ebegin "Installing Lanet desktop packages from the local APK repository"
+    apk add --no-network lanet-shell
+    local result=$?
+    if [ "$result" -eq 0 ]; then
+        rc-update add dbus default >/dev/null 2>&1 || true
+        rc-update add elogind default >/dev/null 2>&1 || true
+        rc-update add seatd default >/dev/null 2>&1 || true
+    fi
+    rc-update del lanet-firstboot boot >/dev/null 2>&1 || true
+    eend "$result"
+}

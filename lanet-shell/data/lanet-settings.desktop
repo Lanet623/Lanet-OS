@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Lanet Control Center
+Comment=Manage Lanet settings, Alpine packages, and OpenRC services
+Exec=lanet-settings
+Terminal=false
+Categories=Settings;System;
+Icon=preferences-system
