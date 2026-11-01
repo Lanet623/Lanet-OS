@@ -1,44 +1,44 @@
 # Lanet OS
 
-Lanet OS is a customizable Alpine Linux project. Its first build targets **Alpine Linux 3.24, x86_64** and uses Alpine's official `aports/scripts/mkimage.sh` builder. The image is intentionally minimal; it is not a new kernel or a complete desktop distribution yet.
+Lanet OS — настраиваемый проект на базе Alpine Linux. Первая сборка рассчитана на **Alpine Linux 3.24, x86_64** и использует официальный инструмент Alpine `aports/scripts/mkimage.sh`. Образ намеренно минимальный: это пока не новое ядро и не законченный дистрибутив с рабочим столом.
 
-## Why Alpine
+## Почему Alpine
 
-Alpine uses musl, BusyBox, and OpenRC and has a small base install. This makes it a reasonable starting point for older PCs, but it does not guarantee that every desktop workload will run well. A graphical desktop and browser need more memory than the base system.
+Alpine использует musl, BusyBox и OpenRC и имеет небольшой базовый размер. Это разумная основа для старых компьютеров, но она не гарантирует, что любая нагрузка рабочего стола будет работать быстро. Графическая среда и браузер требуют больше памяти, чем базовая система.
 
-The first custom ISO is a lightweight Alpine diskless/live image. It includes the Lanet Shell and Lanet Control Center binaries; a first-boot OpenRC service installs their GTK/Sway runtime packages from the APK repository on the ISO. Alpine diskless mode loads the system into RAM, so this graphical image still needs more memory than a command-line installation.
+Первый пользовательский ISO — лёгкий Live-образ Alpine в diskless-режиме. В него входят бинарные файлы Lanet Shell и Lanet Control Center; служба OpenRC при первом запуске устанавливает их GTK/Sway-зависимости из APK-репозитория на ISO. В diskless-режиме Alpine загружает систему в RAM, поэтому для графического образа памяти нужно больше, чем для системы с одной командной строкой.
 
-## Build host
+## Система для сборки
 
-The supported build host is **Alpine Linux**, preferably in a VirtualBox VM on Windows. The official Alpine image builder depends on `apk`, `abuild`, and Alpine-specific tooling; native Windows, Ubuntu, and Debian are not supported hosts for this script.
+Поддерживаемая среда сборки — **Alpine Linux**, предпочтительно в VirtualBox на Windows. Официальному сборщику Alpine нужны `apk`, `abuild` и другие инструменты Alpine; этот скрипт нельзя запускать напрямую в Windows, Ubuntu или Debian.
 
-Use the steps in [QUICKSTART.md](QUICKSTART.md). A stopped VirtualBox VM named **Lanet OS Builder Alpine** has already been prepared with 1536 MB RAM, 2 CPUs, and a 20 GB virtual disk. The official Alpine 3.24.3 ISO and its `.sha256` file are in `output/`. Plan for internet and at least 20 GB free disk space. The first build can take roughly 30-90 minutes, depending on network and hardware.
+Следуй инструкциям в [QUICKSTART.md](QUICKSTART.md). Подготовлена выключенная VM VirtualBox **Lanet OS Builder Alpine**: 1536 МБ RAM, 2 CPU и виртуальный диск на 20 ГБ. Официальный ISO Alpine 3.24.3 и его файл `.sha256` находятся в `output/`. Для сборки нужны интернет и не менее 20 ГБ свободного места. Первая сборка может занять примерно 30–90 минут в зависимости от сети и компьютера.
 
-## Build on Alpine
+## Сборка в Alpine
 
-After Alpine is installed and networking is working, copy or share the project directory into the Alpine VM. From the project directory on that Alpine host:
+После установки Alpine и настройки сети скопируй или открой каталог проекта внутри Alpine VM. В этом каталоге выполни:
 
 ```sh
 doas sh ./build-lanetos.sh
 ```
 
-The script installs build dependencies, creates a signing key for an unprivileged package builder, downloads the official `aports` scripts, builds the Lanet APK, passes its signed local repository to the custom `lanetos` profile, checks the ISO boot records, and copies it to `output/lanetos-alpine-3.24-x86_64.iso`.
+Скрипт устанавливает инструменты сборки, создаёт ключ подписи для непривилегированной учётной записи сборщика, скачивает официальные скрипты `aports`, собирает APK Lanet и передаёт его подписанный локальный репозиторий профилю `lanetos`. Затем проверяются загрузочные записи ISO, и образ копируется в `output/lanetos-alpine-3.24-x86_64.iso`.
 
-## First boot
+## Первый запуск
 
-The next ISO build is configured to start the `lanet` user session automatically through greetd, Sway, and Lanet Shell. A boot-time service installs the signed Lanet APK and runtime packages from the ISO repository, configures eudev/input devices, and enables the session services. These startup changes are in source only until a new ISO is built; older ISO files will still boot to the previous behavior.
+В следующей сборке ISO настроен автоматический запуск сессии пользователя `lanet` через greetd, Sway и Lanet Shell. Служба при загрузке устанавливает подписанный APK Lanet и его зависимости из репозитория на ISO, настраивает eudev и устройства ввода, а также включает службы сессии. Пока эти изменения есть только в исходниках: они появятся в образе лишь после новой сборки. Старые ISO продолжат загружаться по прежнему сценарию.
 
-Test the new ISO in a separate VM first. Installation to a physical disk, persistence, and hardware compatibility are not validated. `setup-alpine` in system-disk mode erases the selected disk.
+Сначала проверь новый ISO в отдельной VM. Установка на физический диск, сохранение данных и совместимость с оборудованием ещё не проверены. Режим `sys` команды `setup-alpine` стирает выбранный диск.
 
-The image has not yet been tested on physical hardware. Secure Boot, persistence, automatic graphical login, custom artwork, and a branded installer remain unverified until the updated ISO is built and tested.
+Образ пока не проверен на физическом компьютере. Поддержка Secure Boot, сохранение данных между загрузками, автоматический графический вход, собственная графика и фирменный установщик остаются неподтверждёнными до новой сборки и тестирования ISO.
 
-## Custom graphical shell
+## Графическая оболочка
 
-The `lanet-shell/` project contains Lanet OS's graphical interface and Control Center. Both are written in C/GTK3 and run over Sway/Wayland. The shell includes a launcher, application search, clock, dock, custom CSS theme, and Sway integration. Control Center stores user appearance settings in `~/.config/lanet/registry.ini`, and manages APK packages and OpenRC boot services through a `doas` terminal prompt.
+Каталог `lanet-shell/` содержит графический интерфейс Lanet OS и Control Center. Оба приложения написаны на C/GTK3 и работают поверх Sway/Wayland. В оболочке есть лаунчер, поиск приложений, часы, dock, собственная CSS-тема и интеграция с Sway. Control Center хранит настройки внешнего вида в `~/.config/lanet/registry.ini`, а управление APK-пакетами и службами OpenRC запускает через терминал с `doas`.
 
-This version is an independent shell UI over Sway, not yet a custom wlroots compositor. It can be redesigned and tested without replacing Linux window management itself.
+Это отдельный интерфейс поверх Sway, а не собственный композитор на wlroots. Его можно развивать и проверять, не заменяя оконную систему Linux.
 
-Build both applications inside Alpine with:
+Собрать оба приложения в Alpine можно так:
 
 ```sh
 cd lanet-shell
@@ -46,6 +46,6 @@ doas sh ./build-alpine.sh
 lanet-shell
 ```
 
-## Customize
+## Настройка
 
-Edit `mkimg.lanetos.sh` or the files under `lanet-shell/` to change the image profile or graphical interface. Keep the official base profile and boot setup unless you know which Alpine mkimage section you are replacing. Rebuild and test in a VM after each change.
+Изменяй `mkimg.lanetos.sh` или файлы в `lanet-shell/`, чтобы настроить профиль образа или графический интерфейс. Не меняй официальный базовый профиль и загрузочную конфигурацию, если не знаешь, какую именно секцию mkimage заменяешь. После каждого изменения пересобирай образ и проверяй его в VM.
