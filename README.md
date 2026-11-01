@@ -24,11 +24,13 @@ doas sh ./build-lanetos.sh
 
 The script installs build dependencies, creates a signing key for an unprivileged package builder, downloads the official `aports` scripts, builds the Lanet APK, passes its signed local repository to the custom `lanetos` profile, checks the ISO boot records, and copies it to `output/lanetos-alpine-3.24-x86_64.iso`.
 
-## First boot and desktop setup
+## First boot
 
-Boot the ISO in a VM first and wait for the first-boot service to install the Lanet APK and its dependencies from the ISO's local repository. Then create a non-root user and start a Sway session to test Lanet Shell. The image is for live preview; installation to disk and preserving the custom APK repository during installation have not yet been validated. `setup-alpine` in system-disk mode erases the selected disk.
+The next ISO build is configured to start the `lanet` user session automatically through greetd, Sway, and Lanet Shell. A boot-time service installs the signed Lanet APK and runtime packages from the ISO repository, configures eudev/input devices, and enables the session services. These startup changes are in source only until a new ISO is built; older ISO files will still boot to the previous behavior.
 
-The image has not yet been tested on physical hardware. Secure Boot, persistence, automatic graphical login, custom artwork, and a branded installer are not claimed as working.
+Test the new ISO in a separate VM first. Installation to a physical disk, persistence, and hardware compatibility are not validated. `setup-alpine` in system-disk mode erases the selected disk.
+
+The image has not yet been tested on physical hardware. Secure Boot, persistence, automatic graphical login, custom artwork, and a branded installer remain unverified until the updated ISO is built and tested.
 
 ## Custom graphical shell
 

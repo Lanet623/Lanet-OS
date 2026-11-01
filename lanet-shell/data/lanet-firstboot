@@ -8,13 +8,56 @@ depend() {
 
 start() {
     ebegin "Installing Lanet desktop packages from the local APK repository"
-    apk add --no-network lanet-shell
-    local result=$?
-    if [ "$result" -eq 0 ]; then
+    if apk add --no-network lanet-shell; then
+        if ! id lanet >/dev/null 2>&1; then
+            adduser -D -h /home/lanet -s /bin/ash -G wheel lanet
+        fi
+        if ! id greeter >/dev/null 2>&1; then
+            adduser -S -D -H -h /var/lib/greetd -s /bin/ash -G greetd greeter
+        fi
+        for group in audio video input seat; do
+            addgroup lanet "$group" >/dev/null 2>&1 || true
+        done
+        addgroup greeter video >/dev/null 2>&1 || true
+
+        setup-devd udev
+        rc-update add udev sysinit >/dev/null 2>&1 || true
+        rc-service udev start >/dev/null 2>&1 || true
+        rc-service modloop start >/dev/null 2>&1 || true
+        rc-service hwdrivers start >/dev/null 2>&1 || true
+
+        mkdir -p /etc/sway /etc/greetd
+        cp /usr/share/lanet-shell/sway-lanet.conf /etc/sway/config
+        cat > /etc/greetd/config.toml <<'EOF'
+[terminal]
+vt = 1
+
+[initial_session]
+command = "dbus-run-session sway -c /etc/sway/config"
+user = "lanet"
+
+[default_session]
+command = "agreety --cmd /bin/ash"
+user = "greeter"
+EOF
+        printf 'rc_need="seatd dbus elogind udev"\n' > /etc/conf.d/greetd
+        addgroup greetd seat >/dev/null 2>&1 || true
+
         rc-update add dbus default >/dev/null 2>&1 || true
         rc-update add elogind default >/dev/null 2>&1 || true
         rc-update add seatd default >/dev/null 2>&1 || true
+        rc-update add greetd default >/dev/null 2>&1 || true
+        if rc-service greetd start; then
+            rc-update del lanet-firstboot boot >/dev/null 2>&1 || true
+            eend 0
+            return 0
+        fi
+        eerror "greetd did not start; firstboot will retry next boot"
+        eend 1
+        return 1
     fi
-    rc-update del lanet-firstboot boot >/dev/null 2>&1 || true
-    eend "$result"
+
+    eerror "Could not install Lanet desktop packages; will retry next boot"
+    eend 1
+    return 1
 }

@@ -26,9 +26,9 @@ The first build needs internet and about 20 GB of free space. Expect roughly 30-
 
 ## First boot
 
-This is an Alpine live/installer image, not a finished graphical desktop. At the console, run `setup-alpine` to configure/install the base system. Follow the prompts carefully; selecting a disk for system installation erases it. After rebooting into the installed system, run `setup-desktop xfce` to configure XFCE, or choose a lighter desktop/window manager for a weaker PC.
+The updated build is intended to start the Lanet user session automatically: OpenRC starts greetd, greetd launches Sway, and Sway launches Lanet Shell. A first-boot service installs the Lanet APK and configures eudev/input devices. These changes require a newly built ISO; an older ISO will not have them.
 
-For very old or low-memory PCs, use a disk installation rather than expecting a full graphical desktop to run from the live ISO. The base system is small, but XFCE and a browser need more RAM. Test with your target hardware before making performance claims.
+Test in a separate VM first. The live desktop uses RAM, so this minimal image is a better fit for low-memory computers than a large desktop, but actual hardware requirements still need testing. Do not select a system disk in `setup-alpine` unless you intend to erase that disk.
 
 ## Customize
 

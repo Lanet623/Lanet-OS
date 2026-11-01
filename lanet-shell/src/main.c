@@ -1,6 +1,5 @@
 #include <gtk/gtk.h>
 #include <gio/gdesktopappinfo.h>
-#include <gio/gdesktopappinfo.h>
 #include <glib/gstdio.h>
 #include <string.h>
 #include <time.h>

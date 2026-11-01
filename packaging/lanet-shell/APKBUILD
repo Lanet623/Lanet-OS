@@ -1,16 +1,18 @@
-# Maintainer: Lanet OS Project
+# Maintainer: Lanet OS Project <lanet623@users.noreply.github.com>
 pkgname=lanet-shell
 pkgver=0.1.0
 pkgrel=0
 pkgdesc="Lanet OS graphical shell and control center"
+url="https://github.com/Lanet623/Lanet-OS"
 arch="x86_64"
 license="MIT"
-depends="gtk+3.0 sway thunar xfce4-terminal doas dbus dbus-x11 elogind seatd polkit-elogind adwaita-icon-theme font-noto"
+depends="gtk+3.0 sway thunar xfce4-terminal doas dbus dbus-x11 elogind seatd eudev eudev-openrc pam_rundir greetd greetd-openrc greetd-agreety polkit-elogind adwaita-icon-theme font-noto"
 makedepends="cmake gtk+3.0-dev"
 options="!check"
 
 build() {
     cmake -S "$startdir/lanet-shell" -B "$srcdir/build" \
+        -G "Unix Makefiles" \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX=/usr
     cmake --build "$srcdir/build" --parallel "$(nproc)"
